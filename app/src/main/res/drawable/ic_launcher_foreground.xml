@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 盾牌主体 - 绿色 -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M54,20 L30,32 L30,52 C30,68.5 40.2,83.8 54,88 C67.8,83.8 78,68.5 78,52 L78,32 Z" />
+
+    <!-- 盾牌高光 - 浅绿色 -->
+    <path
+        android:fillColor="#66BB6A"
+        android:pathData="M54,20 L54,88 C40.2,83.8 30,68.5 30,52 L30,32 Z" />
+
+    <!-- 星星 - 白色 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,38 L57.5,48 L68,48 L59.5,54.5 L62.5,65 L54,58.5 L45.5,65 L48.5,54.5 L40,48 L50.5,48 Z" />
+
+</vector>
