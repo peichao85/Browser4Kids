@@ -70,7 +70,8 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun Browser4KidsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    // 禁用动态颜色: 儿童浏览器需要稳定的明亮配色方案,不随壁纸变化
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -132,6 +132,14 @@ app/
   - AccessControlManager 限时域名授权
   - 设置页临时授权管理(倒计时+撤销)
 - ✅ 130个单元测试全部通过
+- ✅ **修复平板上界面空白不可见的问题**（全面修复）：
+  - WebView (AndroidView) 原生 View Z-order 覆盖 Compose UI：通过 `isVisible` 参数控制原生 View 的 `visibility`，在任何 Compose 覆盖层（HomePage/ErrorPage/PasswordDialog/设置密码框）显示时隐藏 WebView
+  - WebView 添加 `clipToOutline = true` 防止溢出容器边界
+  - 移除 `enableEdgeToEdge()` 避免平板上内容被系统栏遮挡、与透明系统栏的配色冲突
+  - 移除对应的 `windowInsetsPadding(WindowInsets.systemBars)`
+  - 禁用动态颜色 (`dynamicColor = false`)，确保使用固定的儿童友好明亮配色方案，避免壁纸导致 UI 元素不可见
+  - `BrowserScreen` 新增 `hasExternalOverlay` 参数，支持外部覆盖层也能控制 WebView 可见性
+- ✅ **修改 WebView User-Agent 伪装成标准 Chrome 浏览器**：移除 WebView 特有的 `Version/x.x` 标识，解决部分网站检测到非标准浏览器而拒绝访问的问题
 - ⏳ 剩余任务: 应用锁定、更多单元测试、打包发布、文档编写
 
 ## 参考文档

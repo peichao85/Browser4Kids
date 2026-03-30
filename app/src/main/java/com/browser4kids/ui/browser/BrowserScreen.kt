@@ -69,10 +69,15 @@ import com.browser4kids.viewmodel.BrowserViewModel
 fun BrowserScreen(
     viewModel: BrowserViewModel,
     onSettingsClick: () -> Unit,
+    hasExternalOverlay: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val whitelistRules by viewModel.whitelistRules.collectAsState(initial = emptyList())
+
+    // 判断是否有 Compose 覆盖层需要显示在 WebView 之上
+    // 包括内部覆盖层（HomePage/ErrorPage/PasswordDialog）和外部覆盖层（设置密码对话框等）
+    val hasOverlay = uiState.showHomePage || uiState.errorState != null || uiState.showPasswordDialog || hasExternalOverlay
 
     Column(modifier = modifier.fillMaxSize()) {
         // 顶部: 地址栏 + 导航按钮 + 设置按钮
@@ -117,8 +122,12 @@ fun BrowserScreen(
 
         // 主内容区
         Box(modifier = Modifier.weight(1f)) {
-            // WebView
-            BrowserWebView(viewModel = viewModel)
+            // WebView - 当有任何 Compose 覆盖层时隐藏 WebView，
+            // 避免原生 View 的 Z-order 覆盖 Compose UI
+            BrowserWebView(
+                viewModel = viewModel,
+                isVisible = !hasOverlay
+            )
 
             // 主页覆盖层
             if (uiState.showHomePage) {
@@ -285,6 +294,7 @@ fun AddressBar(
 @Composable
 fun BrowserWebView(
     viewModel: BrowserViewModel,
+    isVisible: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -296,6 +306,9 @@ fun BrowserWebView(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
+
+                // 防止 WebView 溢出其容器边界（解决 Z-order 问题的关键）
+                clipToOutline = true
 
                 // 配置WebView设置
                 settings.apply {
@@ -311,6 +324,13 @@ fun BrowserWebView(
                     allowFileAccess = false
                     allowContentAccess = false
                     mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+
+                    // 修改 User-Agent 伪装成标准 Chrome 浏览器
+                    // 移除 WebView 特有标识 "wv"、"Version/x.x"，让网站认为这是标准 Chrome
+                    val defaultUA = userAgentString
+                    userAgentString = defaultUA
+                        .replace("; wv)", ")")           // 移除 wv 标识（WebView 关键标志）
+                        .replace(Regex("Version/\\d+\\.\\d+\\s*"), "")  // 移除 Version/x.x
                 }
 
                 // 设置自定义Client
@@ -329,12 +349,19 @@ fun BrowserWebView(
 
                 viewModel.setWebView(this)
 
+                // 初始不可见，等 Compose 状态驱动显示
+                visibility = if (isVisible) android.view.View.VISIBLE else android.view.View.INVISIBLE
+
                 // 恢复之前浏览的页面(从设置页返回时WebView会重建)
                 val lastUrl = viewModel.uiState.value.currentUrl
                 if (lastUrl.isNotBlank()) {
                     loadUrl(lastUrl)
                 }
             }
+        },
+        update = { webView ->
+            // 通过控制原生 View 的 visibility 解决 AndroidView Z-order 覆盖 Compose UI 的问题
+            webView.visibility = if (isVisible) android.view.View.VISIBLE else android.view.View.INVISIBLE
         },
         modifier = modifier.fillMaxSize()
     )

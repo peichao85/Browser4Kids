@@ -1,8 +1,5 @@
 package com.browser4kids
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +46,7 @@ fun Browser4KidsApp() {
             BrowserScreen(
                 viewModel = browserViewModel,
                 onSettingsClick = { showSettingsPasswordDialog = true },
-                modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars)
+                hasExternalOverlay = showSettingsPasswordDialog
             )
 
             if (showSettingsPasswordDialog) {
